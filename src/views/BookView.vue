@@ -32,6 +32,7 @@ export default {
       });
     }
   },
+  // book.covers[0]
   beforeRouteUpdate(to, from, next) {
     const bookLoadingStore = useBookLoadingStore();
     this.book = null;

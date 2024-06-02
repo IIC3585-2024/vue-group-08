@@ -3,6 +3,7 @@ import { computed, defineProps } from "vue";
 import { useRouter } from "vue-router";
 import LoadingIcon from "../components/LoadingIcon.vue";
 import { useBookLoadingStore } from "../stores/bookLoading";
+import { useAuthStore } from "../stores/auth";
 
 const props = defineProps({
   fetchedBooks: {
@@ -20,6 +21,7 @@ const router = useRouter();
 const bookLoadingStore = useBookLoadingStore();
 const isFetchedBookLoading = computed(() => bookLoadingStore.isLoading);
 const bookLoadingStoreKey = computed(() => bookLoadingStore.key);
+const loggedIn = computed(() => useAuthStore().loggedIn);
 
 function handleClick(bookKey) {
   const bookId = getBookId(bookKey);
@@ -76,6 +78,7 @@ function getBookId(bookKey) {
             Author: {{ book.author_name }}
           </div>
           <button
+            v-if="loggedIn"
             class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded inline-flex self-end mt-4"
             @click="handleClick(book.key)"
           >

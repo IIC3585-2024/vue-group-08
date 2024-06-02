@@ -1,10 +1,11 @@
 <script setup>
 import { RouterLink, RouterView } from "vue-router";
-import { ref, watch, onMounted } from "vue";
+import { computed, ref, watch, onMounted } from "vue";
+import { useAuthStore } from "./stores/auth";
 import NavBar from "./components/NavBar.vue";
 import HomeView from "./views/HomeView.vue";
 
-const loggedIn = ref(true);
+// const loggedIn = ref(true);
 const searchQuery = ref("Clean Code");
 const fetchedBooks = ref([]);
 const isLoading = ref(true);
@@ -13,6 +14,8 @@ const apiUrl = "http://localhost:3000";
 const limit = 10;
 const page = 1;
 const sortedBy = "rating";
+const authStore = useAuthStore();
+const loggedIn = computed(() => authStore.loggedIn);
 
 function updateSearchQuery(query) {
   searchQuery.value = query;
