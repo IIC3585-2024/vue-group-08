@@ -5,10 +5,12 @@ export const useBookLoadingStore = defineStore({
   id: "loading",
   state: () => ({
     isLoading: false,
+    key: null,
   }),
   actions: {
-    setLoading(value) {
+    setLoading(key, value) {
       this.isLoading = value;
+      this.key = key;
     },
   },
 });

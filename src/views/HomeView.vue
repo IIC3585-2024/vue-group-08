@@ -1,32 +1,42 @@
-// OtraVista.vue
 <script setup>
-import { defineProps, computed } from "vue";
+import { computed, defineProps } from "vue";
 import { useRouter } from "vue-router";
-import { useBookLoadingStore } from "../stores/bookLoading";
 import LoadingIcon from "../components/LoadingIcon.vue";
+import { useBookLoadingStore } from "../stores/bookLoading";
 
 const props = defineProps({
   fetchedBooks: {
     type: Array,
     required: true,
   },
+  isHomeViewLoading: {
+    type: Boolean,
+    required: true,
+  },
 });
 
 const router = useRouter();
-const loadingStore = useBookLoadingStore();
 
-const isLoading = computed(() => loadingStore.isLoading);
+const bookLoadingStore = useBookLoadingStore();
+const isFetchedBookLoading = computed(() => bookLoadingStore.isLoading);
+const bookLoadingStoreKey = computed(() => bookLoadingStore.key);
 
 function handleClick(bookKey) {
-  const bookId = bookKey.split("/").pop();
+  const bookId = getBookId(bookKey);
+  // const bookId = bookKey.split("/").pop();
+  // Navegar a la ruta dinámica /:bookKey
   router.push({ name: "book", params: { bookKey: bookId } });
+}
+
+function getBookId(bookKey) {
+  return bookKey.split("/").pop();
 }
 </script>
 
 <template>
   <div class="container mx-auto px-4 py-6 mt-24">
     <div
-      v-if="isLoading"
+      v-if="isHomeViewLoading"
       role="status"
       class="flex items-center justify-center"
     >
@@ -55,15 +65,15 @@ function handleClick(bookKey) {
             class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded inline-flex self-end mt-4"
             @click="handleClick(book.key)"
           >
-            <svg
-              class="fill-current w-4 h-4 mr-2"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 20 20"
-            >
-              <path d="M13 8V2H7v6H2l8 8 8-8h-5zM0 18h20v2H0v-2z" />
-            </svg>
-            <span v-if="!isLoading">Ver Libro</span>
-            <LoadingIcon v-else />
+            <div v-if="bookLoadingStoreKey !== getBookId(book.key)">
+              <span>Ver Libro</span>
+            </div>
+            <LoadingIcon
+              v-else-if="
+                isFetchedBookLoading &&
+                bookLoadingStoreKey === getBookId(book.key)
+              "
+            />
           </button>
         </div>
       </div>

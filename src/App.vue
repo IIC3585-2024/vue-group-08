@@ -41,6 +41,6 @@ onMounted(fetchBooks);
 <template>
   <main class="bg-gray-50 dark:bg-gray-800 flex flex-col">
     <NavBar @searchQuery="updateSearchQuery" :logged-in="loggedIn" />
-    <RouterView :fetchedBooks="fetchedBooks" :isLoading="isLoading" />
+    <RouterView :fetchedBooks="fetchedBooks" :isHomeViewLoading="isLoading" />
   </main>
 </template>
