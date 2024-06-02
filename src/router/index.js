@@ -33,14 +33,14 @@ const router = createRouter({
   ],
 });
 
-// Navigation Guard
-router.beforeEach((to, from, next) => {
-  const authStore = useAuthStore();
-  if (to.meta.requiresAuth && !authStore.loggedIn) {
-    next({ name: "login" });
-  } else {
-    next();
-  }
-});
+// // Navigation Guard
+// router.beforeEach((to, from, next) => {
+//   const authStore = useAuthStore();
+//   if (to.meta.requiresAuth && !authStore.loggedIn) {
+//     next({ name: "login" });
+//   } else {
+//     next();
+//   }
+// });
 
 export default router;

@@ -5,8 +5,8 @@ const apiUrl = "http://localhost:3000";
 export const useAuthStore = defineStore({
   id: "auth",
   state: () => ({
-    loggedIn: false,
-    userId: null,
+    loggedIn: JSON.parse(localStorage.getItem("loggedIn") || "false"),
+    userId: localStorage.getItem("userId") || null,
   }),
   actions: {
     async login(username, password) {
@@ -24,6 +24,8 @@ export const useAuthStore = defineStore({
         const data = await response.json();
         this.userId = data.id;
         this.loggedIn = true;
+        localStorage.setItem("userId", this.userId);
+        localStorage.setItem("loggedIn", JSON.stringify(this.loggedIn));
         console.log(
           "Acabo de cambiar el estado de loggedIn a true: ",
           this.loggedIn
@@ -47,12 +49,16 @@ export const useAuthStore = defineStore({
           }),
         });
         this.loggedIn = true;
+        localStorage.setItem("loggedIn", JSON.stringify(this.loggedIn));
       } catch (error) {
         console.error("Registration failed:", error);
       }
     },
     logout() {
       this.loggedIn = false;
+      this.userId = null;
+      localStorage.removeItem("userId");
+      localStorage.setItem("loggedIn", JSON.stringify(this.loggedIn));
     },
   },
 });

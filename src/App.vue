@@ -5,7 +5,6 @@ import { useAuthStore } from "./stores/auth";
 import NavBar from "./components/NavBar.vue";
 import HomeView from "./views/HomeView.vue";
 
-// const loggedIn = ref(true);
 const searchQuery = ref("Clean Code");
 const fetchedBooks = ref([]);
 const isLoading = ref(true);
