@@ -16,6 +16,7 @@ const page = 1;
 const sortedBy = "rating";
 const authStore = useAuthStore();
 const loggedIn = computed(() => authStore.loggedIn);
+console.log(`loggedIn in App: ${loggedIn.value}`);
 
 function updateSearchQuery(query) {
   searchQuery.value = query;
@@ -43,7 +44,7 @@ onMounted(fetchBooks);
 
 <template>
   <main class="bg-gray-50 dark:bg-gray-800 flex flex-col">
-    <NavBar @searchQuery="updateSearchQuery" :logged-in="loggedIn" />
+    <NavBar @searchQuery="updateSearchQuery" :loggedIn="loggedIn" />
     <RouterView :fetchedBooks="fetchedBooks" :isHomeViewLoading="isLoading" />
   </main>
 </template>
