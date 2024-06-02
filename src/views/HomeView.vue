@@ -43,7 +43,6 @@ function getBookId(bookKey) {
       <LoadingIcon />
       <span class="sr-only">Loading...</span>
     </div>
-
     <div
       v-else
       class="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
@@ -56,6 +55,21 @@ function getBookId(bookKey) {
         <div
           class="flex flex-col items-start mt-2 w-full text-gray-800 dark:text-gray-300"
         >
+          <!-- OJITO -->
+          <img
+            v-if="book.cover_i"
+            :src="`https://covers.openlibrary.org/b/id/${book.cover_i}-M.jpg`"
+            :alt="book.title"
+            class="w-32 h-48 object-cover rounded-lg"
+          />
+          <img
+            v-else
+            src="https://scholastic.co.in/sites/all/themes/scholastic_asia/images/default-book.png"
+            alt="Default Book Image"
+            class="w-32 h-48 object-cover rounded-lg"
+          />
+          <!-- <BookCoverImage :src="book.cover_i" :alt="book.title" :size="M" /> -->
+          <!-- OJITO -->
           <div class="font-bold">{{ book.title }}</div>
           <div class="mt-1">{{ book.first_sentence }}</div>
           <div class="mt-2 italic text-gray-500 dark:text-gray-400">

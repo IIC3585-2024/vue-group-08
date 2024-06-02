@@ -1,3 +1,26 @@
+<script setup>
+import { defineComponent, ref } from "vue";
+
+const props = defineProps({
+  src: {
+    type: String,
+    required: true,
+  },
+  alt: {
+    type: String,
+    required: true,
+  },
+  size: {
+    type: String,
+    default: "M",
+  },
+});
+
+onMounted(() => {
+  console.log(`https://covers.openlibrary.org/b/id/${src}-${size}.jpg`);
+});
+</script>
+
 <template>
   <div class="relative">
     <div
@@ -45,7 +68,7 @@
       </svg>
     </div>
     <img
-      :src="`https://covers.openlibrary.org/b/isbn/${src}-${size}.jpg`"
+      :src="`https://covers.openlibrary.org/b/id/${src}-${size}.jpg`"
       :alt="alt"
       @load="handleLoad"
       @error="handleError"
@@ -53,45 +76,6 @@
     />
   </div>
 </template>
-
-<script lang="ts">
-import { defineComponent, ref } from "vue";
-
-export default defineComponent({
-  props: {
-    src: {
-      type: String,
-      required: true,
-    },
-    alt: {
-      type: String,
-      required: true,
-    },
-    size: {
-      type: String,
-      default: "M",
-    },
-  },
-  setup() {
-    const loading = ref(true);
-
-    function handleLoad() {
-      loading.value = false;
-    }
-
-    function handleError() {
-      loading.value = false;
-      console.error("Failed to load image:", this.src);
-    }
-
-    return {
-      loading,
-      handleLoad,
-      handleError,
-    };
-  },
-});
-</script>
 
 <style scoped>
 .hidden {
