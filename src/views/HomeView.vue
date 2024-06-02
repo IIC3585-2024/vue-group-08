@@ -1,30 +1,18 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { defineProps } from "vue";
 import BookCoverImage from "../components/BookCoverImage.vue";
 import LoadingIcon from "../components/LoadingIcon.vue";
 
-const apiUrl = "http://localhost:3000";
-
-const fetchedBooks = ref([]);
-const searchQuery = ref("");
-const isLoading = ref(true); // Variable para rastrear el estado de carga
-
-async function fetchBooks() {
-  isLoading.value = true; // Comienza la carga
-  try {
-    const response = await fetch(
-      `${apiUrl}/books/searchByTitle?title=Clean Code&limit=10&page=1&sortedBy=rating`
-    );
-    const data = await response.json();
-    fetchedBooks.value = data.books;
-  } catch (error) {
-    console.error("Error fetching books:", error);
-  } finally {
-    isLoading.value = false; // Termina la carga
-  }
-}
-
-onMounted(fetchBooks);
+const props = defineProps({
+  fetchedBooks: {
+    type: Array,
+    required: true,
+  },
+  isLoading: {
+    type: Boolean,
+    required: true,
+  },
+});
 </script>
 
 <template>

@@ -1,5 +1,5 @@
 <script setup>
-import { defineProps } from "vue";
+import { defineProps, defineEmits } from "vue";
 
 defineProps({
   loggedIn: {
@@ -7,6 +7,16 @@ defineProps({
     required: true,
   },
 });
+
+const emit = defineEmits(["searchQuery"]);
+
+function updateSearchQuery(event) {
+  emit("searchQuery", event.target.value);
+  console.log(
+    "Emitiendo alerta desde Navbar para buscar: ",
+    event.target.value
+  );
+}
 </script>
 
 <template>
@@ -106,6 +116,7 @@ defineProps({
             id="search-navbar"
             class="block w-96 p-2 ps-10 text-lg text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             placeholder="Search..."
+            @input="updateSearchQuery"
           />
         </div>
         <button
@@ -162,6 +173,7 @@ defineProps({
             id="search-navbar"
             class="block w-full p-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             placeholder="Search..."
+            @input="updateSearchQuery"
           />
         </div>
         <ul
