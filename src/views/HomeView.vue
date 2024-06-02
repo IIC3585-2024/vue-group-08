@@ -1,6 +1,8 @@
+// OtraVista.vue
 <script setup>
-import { defineProps } from "vue";
+import { defineProps, computed } from "vue";
 import { useRouter } from "vue-router";
+import { useBookLoadingStore } from "../stores/bookLoading";
 import LoadingIcon from "../components/LoadingIcon.vue";
 
 const props = defineProps({
@@ -8,17 +10,15 @@ const props = defineProps({
     type: Array,
     required: true,
   },
-  isLoading: {
-    type: Boolean,
-    required: true,
-  },
 });
 
 const router = useRouter();
+const loadingStore = useBookLoadingStore();
+
+const isLoading = computed(() => loadingStore.isLoading);
 
 function handleClick(bookKey) {
   const bookId = bookKey.split("/").pop();
-  // Navegar a la ruta dinámica /:bookKey
   router.push({ name: "book", params: { bookKey: bookId } });
 }
 </script>
@@ -62,7 +62,8 @@ function handleClick(bookKey) {
             >
               <path d="M13 8V2H7v6H2l8 8 8-8h-5zM0 18h20v2H0v-2z" />
             </svg>
-            <span>Ver Libro</span>
+            <span v-if="!isLoading">Ver Libro</span>
+            <LoadingIcon v-else />
           </button>
         </div>
       </div>
