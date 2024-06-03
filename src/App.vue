@@ -1,86 +1,49 @@
 <script setup>
 import { RouterLink, RouterView } from "vue-router";
-import HelloWorld from "./components/HelloWorld.vue";
-import LogoSVG from "./assets/logo.svg?component";
+import { computed, ref, watch, onMounted } from "vue";
+import { useAuthStore } from "./stores/auth";
+import NavBar from "./components/NavBar.vue";
+import HomeView from "./views/HomeView.vue";
+
+const searchQuery = ref("Clean Code");
+const fetchedBooks = ref([]);
+const isLoading = ref(true);
+
+const apiUrl = "http://localhost:3000";
+const limit = 10;
+const page = 1;
+const sortedBy = "rating";
+const authStore = useAuthStore();
+const loggedIn = computed(() => authStore.loggedIn);
+console.log(`loggedIn in App: ${loggedIn.value}`);
+
+function updateSearchQuery(query) {
+  searchQuery.value = query;
+  console.log("En App.vue searchQuery toma el valor de: ", searchQuery.value);
+}
+
+async function fetchBooks() {
+  isLoading.value = true;
+  try {
+    const response = await fetch(
+      `${apiUrl}/books/searchByTitle?title=${searchQuery.value}&limit=${limit}&page=${page}&sortedBy=${sortedBy}`
+    );
+    const data = await response.json();
+    fetchedBooks.value = data.books;
+  } catch (error) {
+    console.error("Error fetching books:", error);
+  } finally {
+    isLoading.value = false;
+  }
+}
+
+watch(searchQuery, fetchBooks);
+onMounted(fetchBooks);
 </script>
 
 <template>
-  <header>
-    <LogoSVG alt="Vite logo" class="logo" />
-
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
-      </nav>
-    </div>
-  </header>
-
-  <RouterView />
+  <main class="bg-gray-50 dark:bg-gray-800 flex flex-col">
+    <NavBar @searchQuery="updateSearchQuery" :loggedIn="loggedIn" />
+    <RouterView :fetchedBooks="fetchedBooks" :isHomeViewLoading="isLoading" />
+  </main>
 </template>
-
-<style scoped>
-header {
-  line-height: 1.5;
-  max-height: 100vh;
-}
-
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
-
-nav {
-  width: 100%;
-  font-size: 12px;
-  text-align: center;
-  margin-top: 2rem;
-}
-
-nav a.router-link-exact-active {
-  color: var(--color-text);
-}
-
-nav a.router-link-exact-active:hover {
-  background-color: transparent;
-}
-
-nav a {
-  display: inline-block;
-  padding: 0 1rem;
-  border-left: 1px solid var(--color-border);
-}
-
-nav a:first-of-type {
-  border: 0;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  nav {
-    text-align: left;
-    margin-left: -1rem;
-    font-size: 1rem;
-
-    padding: 1rem 0;
-    margin-top: 1rem;
-  }
-}
-</style>
