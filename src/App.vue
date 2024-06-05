@@ -15,7 +15,6 @@ const page = 1;
 const sortedBy = "rating";
 const authStore = useAuthStore();
 const loggedIn = computed(() => authStore.loggedIn);
-console.log(`loggedIn in App: ${loggedIn.value}`);
 
 function updateSearchQuery(query) {
   searchQuery.value = query;

@@ -25,8 +25,6 @@ const loggedIn = computed(() => useAuthStore().loggedIn);
 
 function handleClick(bookKey) {
   const bookId = getBookId(bookKey);
-  // const bookId = bookKey.split("/").pop();
-  // Navegar a la ruta dinámica /:bookKey
   router.push({ name: "book", params: { bookKey: bookId } });
 }
 
@@ -57,7 +55,6 @@ function getBookId(bookKey) {
         <div
           class="flex flex-col items-start mt-2 w-full text-gray-800 dark:text-gray-300"
         >
-          <!-- OJITO -->
           <img
             v-if="book.cover_i"
             :src="`https://covers.openlibrary.org/b/id/${book.cover_i}-M.jpg`"
@@ -71,7 +68,6 @@ function getBookId(bookKey) {
             class="w-32 h-48 object-cover rounded-lg"
           />
           <!-- <BookCoverImage :src="book.cover_i" :alt="book.title" :size="M" /> -->
-          <!-- OJITO -->
           <div class="font-bold">{{ book.title }}</div>
           <div class="mt-1">{{ book.first_sentence }}</div>
           <div class="mt-2 italic text-gray-500 dark:text-gray-400">
