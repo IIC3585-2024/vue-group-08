@@ -10,11 +10,11 @@ export default defineComponent({
     const authStore = useAuthStore();
     const books = ref([]);
     const tabs = [
-      { name: "Completed", label: "Completed" }, // 1
-      { name: "Reading", label: "Currently reading" }, // 2
-      { name: "On Hold", label: "On hold" }, // 3
-      { name: "Plan to read", label: "Plan to read" }, // 4
-      { name: "Dropped", label: "Dropped" }, // 5
+      { name: "Completed", label: "Completed" },
+      { name: "Reading", label: "Currently reading" },
+      { name: "On Hold", label: "On hold" },
+      { name: "Plan to read", label: "Plan to read" },
+      { name: "Dropped", label: "Dropped" },
       { name: "Recommended", label: "Recommended" },
     ];
     const activeTab = ref("Recommended");
@@ -25,12 +25,9 @@ export default defineComponent({
       try {
         let url;
         const userId = authStore.userId;
-        // const userId = authStore.getUserId;
         if (tab === "Recommended") {
-          // url = `http://localhost:3000/recommendations/received/1`;
           url = `http://localhost:3000/recomendations/received/${userId}`;
         } else {
-          // url = `http://localhost:3000/listElements/userList/1?state=${tab}`;
           url = `http://localhost:3000/listElements/userList/${userId}?state=${tab}`;
         }
         const response = await fetch(url);
@@ -116,62 +113,6 @@ export default defineComponent({
       >
         <BooksTable :books="books" />
       </div>
-
-      <!-- <div
-        v-if="loading"
-        class="p-4 rounded-lg bg-gray-50 dark:bg-gray-800"
-        role="tabpanel"
-      >
-        <LoadingIcon />
-      </div>
-      <div
-        v-if="!loading && activeTab === 'Recommended'"
-        class="p-4 rounded-lg bg-gray-50 dark:bg-gray-800"
-        role="tabpanel"
-        aria-labelledby="all-books-tab"
-      >
-        <BooksTable :books="books" />
-      </div>
-      <div
-        v-if="!loading && activeTab === 'Plan to read'"
-        class="p-4 rounded-lg bg-gray-50 dark:bg-gray-800"
-        role="tabpanel"
-        aria-labelledby="plan-to-read-tab"
-      >
-        <BooksTable :books="books" />
-      </div>
-      <div
-        v-if="!loading && activeTab === 'Dropped'"
-        class="p-4 rounded-lg bg-gray-50 dark:bg-gray-800"
-        role="tabpanel"
-        aria-labelledby="dropped-tab"
-      >
-        <BooksTable :books="books" />
-      </div>
-      <div
-        v-if="!loading && activeTab === 'On Hold'"
-        class="p-4 rounded-lg bg-gray-50 dark:bg-gray-800"
-        role="tabpanel"
-        aria-labelledby="on-hold-tab"
-      >
-        <BooksTable :books="books" />
-      </div>
-      <div
-        v-if="!loading && activeTab === 'Completed'"
-        class="p-4 rounded-lg bg-gray-50 dark:bg-gray-800"
-        role="tabpanel"
-        aria-labelledby="completed-tab"
-      >
-        <BooksTable :books="books" />
-      </div>
-      <div
-        v-if="!loading && activeTab === 'Reading'"
-        class="p-4 rounded-lg bg-gray-50 dark:bg-gray-800"
-        role="tabpanel"
-        aria-labelledby="currently-reading-tab"
-      >
-        <BooksTable :books="books" />
-      </div> -->
     </div>
   </div>
 </template>

@@ -16,7 +16,6 @@ const isHomeRoute = computed(() => route.name === "home");
 const authStore = useAuthStore();
 const loggedIn = computed(() => {
   const value = authStore.loggedIn;
-  console.log(`loggedIn value in NavBar: ${value}`);
   return value;
 });
 
@@ -24,10 +23,6 @@ const emit = defineEmits(["searchQuery"]);
 
 function updateSearchQuery(event) {
   emit("searchQuery", event.target.value);
-  console.log(
-    "Emitiendo alerta desde Navbar para buscar: ",
-    event.target.value
-  );
 }
 
 function logout() {

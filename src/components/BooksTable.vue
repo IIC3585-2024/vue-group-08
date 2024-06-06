@@ -38,10 +38,6 @@ export default defineComponent({
           return { ...book, book: details };
         });
         detailedBooks.value = await Promise.all(promises);
-        console.log(
-          "detailedBooks.value[0].book.book.covers",
-          detailedBooks.value[0].book.book.covers
-        );
       } catch (error) {
         console.error("Failed to get detailed books:", error);
       } finally {

@@ -193,8 +193,6 @@ function toggleUserSelection(userId) {
 
 function confirm() {
   const selectedUsers = users.filter((user) => user.selected);
-  console.log("Selected Users:", selectedUsers);
-  console.log("Recommendation:", recommendation.value);
   closeModal();
 }
 </script>
