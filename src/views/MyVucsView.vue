@@ -1,72 +1,77 @@
 <script>
-import { defineComponent, ref } from "vue";
+import { defineComponent, ref, onMounted, watch } from "vue";
 import BooksTable from "../components/BooksTable.vue";
+import LoadingIcon from "../components/LoadingIcon.vue";
+import { useAuthStore } from "../stores/auth";
 
 export default defineComponent({
-  components: { BooksTable },
+  components: { BooksTable, LoadingIcon },
   setup() {
-    const books = [
-      {
-        id: "9780132350884",
-        name: "Clean Code",
-        introduction:
-          "Even bad code can function. But if code isn’t clean, it can bring a development organization to its knees.",
-        author: "Robert C. Martin",
-      },
-      {
-        id: "9780201485677",
-        name: "Refactoring",
-        introduction:
-          "As the application of object technology--particularly the Java programming language--has become commonplace, a new problem has emerged to confront the software development community.",
-        author: "Martin Fowler",
-      },
-      {
-        id: "9780131103627",
-        name: "The C Programming Language",
-        introduction:
-          "This book is meant to help the reader learn how to program in C.",
-        author: "Brian W. Kernighan, Dennis M. Ritchie",
-      },
-      {
-        id: "9780201633610",
-        name: "Design Patterns",
-        introduction:
-          "Capturing a wealth of experience about the design of object-oriented software, four top-notch researchers present a catalog of simple and succinct solutions to commonly occurring design problems.",
-        author: "Erich Gamma, Richard Helm, Ralph Johnson, John Vlissides",
-      },
-      {
-        id: "9780321125217",
-        name: "Domain-Driven Design",
-        introduction:
-          "Explains how to incorporate effective domain modeling into the software development process.",
-        author: "Eric Evans",
-      },
-    ];
-
+    const authStore = useAuthStore();
+    const books = ref([]);
     const tabs = [
-      { name: "all-books", label: "All Books" },
-      { name: "plan-to-read", label: "Plan to read" },
-      { name: "dropped", label: "Dropped" },
-      { name: "on-hold", label: "On hold" },
-      { name: "completed", label: "Completed" },
-      { name: "currently-reading", label: "Currently reading" },
+      { name: "Completed", label: "Completed" }, // 1
+      { name: "Reading", label: "Currently reading" }, // 2
+      { name: "On Hold", label: "On hold" }, // 3
+      { name: "Plan to read", label: "Plan to read" }, // 4
+      { name: "Dropped", label: "Dropped" }, // 5
+      { name: "Recommended", label: "Recommended" },
     ];
+    const activeTab = ref("Recommended");
+    const loading = ref(false);
 
-    const activeTab = ref("all-books");
+    const fetchBooks = async (tab) => {
+      loading.value = true;
+      try {
+        let url;
+        const userId = authStore.userId;
+        // const userId = authStore.getUserId;
+        if (tab === "Recommended") {
+          // url = `http://localhost:3000/recommendations/received/1`;
+          url = `http://localhost:3000/recomendations/received/${userId}`;
+        } else {
+          // url = `http://localhost:3000/listElements/userList/1?state=${tab}`;
+          url = `http://localhost:3000/listElements/userList/${userId}?state=${tab}`;
+        }
+        const response = await fetch(url);
+        const data = await response.json();
+        books.value = data;
+      } catch (error) {
+        console.error("Failed to fetch books:", error);
+      } finally {
+        loading.value = false;
+      }
+    };
 
-    function setActiveTab(tab: string) {
+    const setActiveTab = (tab) => {
       activeTab.value = tab;
-    }
+    };
+
+    watch(activeTab, (newTab) => {
+      fetchBooks(newTab);
+    });
+
+    onMounted(() => {
+      fetchBooks(activeTab.value);
+    });
 
     return {
       books,
       tabs,
       activeTab,
+      loading,
       setActiveTab,
     };
   },
 });
 </script>
+
+<style scoped>
+.active-tab {
+  border-bottom: 2px solid #3b82f6;
+  color: #3b82f6;
+}
+</style>
 
 <template>
   <div>
@@ -97,7 +102,30 @@ export default defineComponent({
     </div>
     <div>
       <div
-        v-if="activeTab === 'all-books'"
+        v-if="loading"
+        class="p-4 rounded-lg bg-gray-50 dark:bg-gray-800"
+        role="tabpanel"
+      >
+        <LoadingIcon />
+      </div>
+      <div
+        v-if="!loading"
+        class="p-4 rounded-lg bg-gray-50 dark:bg-gray-800"
+        role="tabpanel"
+        aria-labelledby="all-books-tab"
+      >
+        <BooksTable :books="books" />
+      </div>
+
+      <!-- <div
+        v-if="loading"
+        class="p-4 rounded-lg bg-gray-50 dark:bg-gray-800"
+        role="tabpanel"
+      >
+        <LoadingIcon />
+      </div>
+      <div
+        v-if="!loading && activeTab === 'Recommended'"
         class="p-4 rounded-lg bg-gray-50 dark:bg-gray-800"
         role="tabpanel"
         aria-labelledby="all-books-tab"
@@ -105,7 +133,7 @@ export default defineComponent({
         <BooksTable :books="books" />
       </div>
       <div
-        v-if="activeTab === 'plan-to-read'"
+        v-if="!loading && activeTab === 'Plan to read'"
         class="p-4 rounded-lg bg-gray-50 dark:bg-gray-800"
         role="tabpanel"
         aria-labelledby="plan-to-read-tab"
@@ -113,7 +141,7 @@ export default defineComponent({
         <BooksTable :books="books" />
       </div>
       <div
-        v-if="activeTab === 'dropped'"
+        v-if="!loading && activeTab === 'Dropped'"
         class="p-4 rounded-lg bg-gray-50 dark:bg-gray-800"
         role="tabpanel"
         aria-labelledby="dropped-tab"
@@ -121,7 +149,7 @@ export default defineComponent({
         <BooksTable :books="books" />
       </div>
       <div
-        v-if="activeTab === 'on-hold'"
+        v-if="!loading && activeTab === 'On Hold'"
         class="p-4 rounded-lg bg-gray-50 dark:bg-gray-800"
         role="tabpanel"
         aria-labelledby="on-hold-tab"
@@ -129,7 +157,7 @@ export default defineComponent({
         <BooksTable :books="books" />
       </div>
       <div
-        v-if="activeTab === 'completed'"
+        v-if="!loading && activeTab === 'Completed'"
         class="p-4 rounded-lg bg-gray-50 dark:bg-gray-800"
         role="tabpanel"
         aria-labelledby="completed-tab"
@@ -137,20 +165,13 @@ export default defineComponent({
         <BooksTable :books="books" />
       </div>
       <div
-        v-if="activeTab === 'currently-reading'"
+        v-if="!loading && activeTab === 'Reading'"
         class="p-4 rounded-lg bg-gray-50 dark:bg-gray-800"
         role="tabpanel"
         aria-labelledby="currently-reading-tab"
       >
         <BooksTable :books="books" />
-      </div>
+      </div> -->
     </div>
   </div>
 </template>
-
-<style scoped>
-.active-tab {
-  border-bottom: 2px solid #3b82f6;
-  color: #3b82f6;
-}
-</style>

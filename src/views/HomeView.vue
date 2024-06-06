@@ -16,6 +16,9 @@ const props = defineProps({
   },
 });
 
+const userId = computed(() => useAuthStore().userId);
+console.log("userId in HomeView: ", userId.value);
+
 const router = useRouter();
 
 const bookLoadingStore = useBookLoadingStore();
