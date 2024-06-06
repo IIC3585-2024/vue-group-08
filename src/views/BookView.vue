@@ -5,6 +5,8 @@ import LoadingIcon from "../components/LoadingIcon.vue";
 import AddToListComponent from "../components/AddToListComponent.vue";
 import SelectScore from "../components/SelectScore.vue";
 import RecommendButton from "../components/RecommendButton.vue";
+import { useAuthStore } from "../stores/auth";
+
 
 export default {
   name: "BookView",
@@ -21,8 +23,13 @@ export default {
       bookDescription: "",
       book: null,
       error: null,
+      bookKey: "",
+      bookState: "",
+      userHasBook: false
     };
   },
+
+
   async beforeRouteEnter(to, from, next) {
     const bookLoadingStore = useBookLoadingStore();
     bookLoadingStore.setLoading(to.params.bookKey, true);
@@ -32,12 +39,24 @@ export default {
       );
       if (!response.ok) throw new Error("Failed to fetch data");
       const book = await response.json();
-      console.log("book response", book.book);
+      const stateResponse = await fetch(
+        `http://localhost:3000/listElements/userList/getByKey/${useAuthStore().userId}/${to.params.bookKey}`);
+      const stateData = await stateResponse.json();
+      let bookState;
+      if (stateData.userHasBook){
+          bookState = stateData.listElement.state;
+      }
+      else {
+           bookState = "";
+      }
+      // this.setBookTitle(book.book.title);
       next((vm) => {
-        // vm.setBook(book);
         vm.setBookTitle(book.book.title);
-        vm.setBookCover(book.book.covers[0]);
+        vm.setBookCover(book.book.covers);
         vm.setBookDescription(book.book.description);
+        vm.setBookKey(book.book.key);
+        vm.setBookState(bookState);
+        vm.setUserHasBook(stateData.userHasBook);
         bookLoadingStore.setLoading(null, false);
       });
     } catch (err) {
@@ -47,7 +66,6 @@ export default {
       });
     }
   },
-  // book.covers[0]
   beforeRouteUpdate(to, from, next) {
     const bookLoadingStore = useBookLoadingStore();
     this.book = null;
@@ -60,9 +78,28 @@ export default {
       .then((book) => {
         this.book = book;
         setBookTitle(book.book.title);
-        setBookCover(book.book.covers[0]);
+        setBookCover(book.book.covers);
         setBookDescription(book.book.description);
+        setBookKey(book.book.key);
         bookLoadingStore.setLoading(null, false);
+        // TODO: preguntar a vini la diferencia entre estos 2 metodos
+        fetch(
+        `http://localhost:3000/listElements/userList/getByKey/${useAuthStore().userId}/${to.params.bookKey}`)
+        .then((stateResponse) => {
+          return stateResponse.json();
+        })
+        .then((stateData) => {
+          let bookState;
+          if (stateData.userHasBook){
+              bookState = stateData.listElement.state;
+          }
+          else {
+              bookState = "";
+          }
+
+          setBookState(bookState);
+          setUserHasBook(stateData.userHasBook);
+        })
         next();
       })
       .catch((err) => {
@@ -75,21 +112,33 @@ export default {
     setBookTitle(title) {
       this.bookTitle = title;
     },
-    setBookCover(cover) {
-      this.bookCover = cover;
+    setBookCover(covers) {
+      if (covers){
+        this.bookCover = covers[0];
+      }
     },
     setBookDescription(description) {
       this.bookDescription = description;
     },
     setBook(book) {
       this.book = book;
-      console.log("Setie el book:", book);
+    },
+    setBookKey(key) {
+      this.bookKey = key;
+    },
+    setBookState(state) {
+      this.bookState = state;
+    },
+    setUserHasBook(userHasBook) {
+      this.userHasBook = userHasBook;
     },
     setError(err) {
       this.error = err.toString();
     },
   },
 };
+
+
 </script>
 
 <template>
@@ -189,7 +238,7 @@ export default {
 
           <div class="mt-6 sm:gap-4 sm:items-center sm:flex sm:mt-8">
             <h1>Buena</h1>
-            <AddToListComponent />
+            <AddToListComponent :bookKey="bookKey" :userHasBook="userHasBook" :bookState="bookState"/>
             <SelectScore />
             <RecommendButton />
           </div>

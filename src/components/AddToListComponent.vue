@@ -1,11 +1,75 @@
 <script setup>
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import { useAuthStore } from "../stores/auth";
+
+const props = defineProps({
+  bookKey: {
+    type: String,
+    required: true,
+  },
+  bookState: {
+    type: String,
+    required: true
+  },
+  userHasBook: {
+    type: Boolean,
+    required: true
+  }
+});
+
+const apiUrl = "http://localhost:3000";
 
 const authStore = useAuthStore();
 const userId = computed(() => authStore.userId);
+const isAdded = ref(false);
 
-const bookInList = ref(true);
+const bookInList = computed(() => {
+  if (isAdded.value){
+    return true;
+  }
+  else{
+    return props.userHasBook;
+  }
+});
+
+const bookState = computed(() => props.bookState);
+
+
+async function handleClick() {
+  const bookId = getBookId(props.bookKey);
+  await addBookToUserList(bookId);
+  ;
+} 
+
+// watch(props.userHasBook, () => bookInList.value = props.userHasBook);
+
+
+async function addBookToUserList(bookId){
+  try {
+        const response = await fetch(`${apiUrl}/listElements`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+          userId: authStore.userId,
+          key: bookId
+        }),
+        });
+        const data = await response.json();
+        isAdded.value = true;
+        console.log(
+          "Add to list succesfull ",
+        );
+      } catch (error) {
+        // Handle the error
+        console.error("Add to list failed", error);
+      }
+}
+
+function getBookId(bookKey) {
+  return bookKey.split("/").pop();
+}
 </script>
 
 <template>
@@ -14,6 +78,7 @@ const bookInList = ref(true);
       v-if="!bookInList"
       type="button"
       class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center me-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+      @click="handleClick()"
     >
       <svg
         class="w-6 h-6 text-gray-800 dark:text-white"
