@@ -1,5 +1,5 @@
 <script setup>
-import { computed, defineProps } from "vue";
+import { computed } from "vue";
 import { useRouter } from "vue-router";
 import LoadingIcon from "../components/LoadingIcon.vue";
 import { useBookLoadingStore } from "../stores/bookLoading";
