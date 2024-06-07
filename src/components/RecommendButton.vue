@@ -1,7 +1,7 @@
 <template>
   <!-- Modal toggle -->
   <button
-    @click="toggleModal"
+    @click="openRecomendationModal"
     class="flex items-center text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
     type="button"
   >
@@ -69,36 +69,6 @@
         </div>
         <!-- Modal body -->
         <div class="p-4 md:p-5 space-y-4">
-          <div class="p-3">
-            <label for="input-group-search" class="sr-only">Search</label>
-            <div class="relative">
-              <div
-                class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none"
-              >
-                <svg
-                  class="w-4 h-4 text-gray-500 dark:text-gray-400"
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    stroke="currentColor"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
-                  />
-                </svg>
-              </div>
-              <input
-                type="text"
-                id="input-group-search"
-                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                placeholder="Search user"
-              />
-            </div>
-          </div>
           <ul
             class="h-48 px-3 pb-3 overflow-y-auto text-sm text-gray-700 dark:text-gray-200"
             aria-labelledby="dropdownSearchButton"
@@ -110,14 +80,14 @@
                 <input
                   :id="'checkbox-item-' + user.id"
                   type="checkbox"
-                  :checked="user.selected"
+                  :checked="user.id === selectedUserId"
                   @click="toggleUserSelection(user.id)"
                   class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
                 />
                 <label
                   :for="'checkbox-item-' + user.id"
                   class="w-full ms-2 text-sm font-medium text-gray-900 rounded dark:text-gray-300"
-                  >{{ user.name }}</label
+                  >{{ user.username }}</label
                 >
               </div>
             </li>
@@ -161,19 +131,41 @@
 </template>
 
 <script setup>
-import { ref, reactive } from "vue";
+import { ref, reactive, computed } from "vue";
+import { useAuthStore } from "../stores/auth";
+
+const props = defineProps({
+  bookKey: {
+    type: String,
+    required: true,
+  },
+});
+
+const authStore = useAuthStore();
+const userId = computed(() => authStore.userId);
+const apiUrl = "http://localhost:3000";
 
 const isOpen = ref(false);
-const users = reactive([
-  { id: 1, name: "Bonnie Green", selected: false },
-  { id: 2, name: "Jese Leos", selected: false },
-  { id: 3, name: "Michael Gough", selected: false },
-  { id: 4, name: "Robert Wall", selected: false },
-  { id: 5, name: "Joseph Mcfall", selected: false },
-  { id: 6, name: "Leslie Livingston", selected: false },
-  { id: 7, name: "Roberta Casas", selected: false },
-]);
+const selectedUserId = ref(null);
+
+const users = ref([]);
 const recommendation = ref("");
+
+async function openRecomendationModal(){
+  users.value = await getAllUsers();
+  toggleModal();
+}
+
+async function getAllUsers(){
+  try {
+    const response = await fetch(`${apiUrl}/users/getAll`);
+    const data = await response.json();
+    return data.users;
+  }
+  catch (error){
+    console.error("Get all users failed", error);
+  }
+}
 
 function toggleModal() {
   isOpen.value = !isOpen.value;
@@ -184,15 +176,34 @@ function closeModal() {
 }
 
 function toggleUserSelection(userId) {
-  users.forEach((user) => {
-    if (user.id === userId) {
-      user.selected = !user.selected;
-    }
-  });
+  this.selectedUserId = this.selectedUserId === userId ? null : userId;
 }
 
-function confirm() {
-  const selectedUsers = users.filter((user) => user.selected);
-  closeModal();
+async function confirm() {
+  console.log("Selected Users:", selectedUserId.value);
+  console.log("Recommendation:", recommendation.value);
+  try {
+    const response = await fetch(`${apiUrl}/recomendations`, {
+      method: "POST",
+      headers: {
+          "Content-type": "application/json",
+      },
+      body: JSON.stringify({
+        userWhoRecomendsId: authStore.userId,
+        userWhoGetsRecomendedId: selectedUserId.value,
+        content: recommendation.value,
+        key: ""
+      })
+    });
+    const data = await response.json();
+    console.log("Recomendation created");
+  }
+  catch (error) {
+    console.error("Failed to create recomendation", error);
+  }
+  finally {
+    closeModal();
+  }
+
 }
 </script>
