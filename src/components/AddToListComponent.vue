@@ -71,8 +71,8 @@ const listElementId = computed(() => {
 
 async function handleClick() {
   const bookId = getBookId(props.bookKey);
-  await addBookToUserList(bookId);
-  emit("addToList");
+  const newListElementId = await addBookToUserList(bookId);
+  emit("addToList", newListElementId);
   ;
 } 
 
@@ -114,6 +114,7 @@ async function addBookToUserList(bookId){
         console.log(
           "Add to list succesfull ",
         );
+        return newListElementId;
       } catch (error) {
         console.error("Add to list failed", error);
       }

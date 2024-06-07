@@ -158,6 +158,10 @@ export default {
     setBookScore(bookScore) {
       this.bookScore = bookScore;
     },
+    updateOnAddToList(newListElementId){
+      this.userHasBook = true;
+      this.listElementId = newListElementId;
+    },
     setError(err) {
       this.error = err.toString();
     },
@@ -264,7 +268,7 @@ export default {
 
           <div class="mt-6 sm:gap-4 sm:items-center sm:flex sm:mt-8">
             <AddToListComponent :bookKey="bookKey" :userHasBook="userHasBook" 
-            :bookState="bookState" :listElementId="listElementId" @addToList="() => userHasBook = true"/>
+            :bookState="bookState" :listElementId="listElementId" @addToList="(newListElementId) => updateOnAddToList(newListElementId)"/>
             <SelectScore v-if="userHasBook" :listElementId="listElementId" :bookScore="bookScore"/>
             <RecommendButton :bookKey="bookKey"/>
           </div>
