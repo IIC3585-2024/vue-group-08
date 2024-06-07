@@ -23,7 +23,7 @@ async function handleRegister(event) {
 
   try {
     await authStore.register(username.value, email.value, password.value);
-    router.push("/");
+    router.push("/login");
   } catch (error) {
     errorMessage.value = error.message;
   }
