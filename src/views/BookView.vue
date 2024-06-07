@@ -32,7 +32,6 @@ export default {
       );
       if (!response.ok) throw new Error("Failed to fetch data");
       const book = await response.json();
-      console.log("book response", book.book);
       next((vm) => {
         // vm.setBook(book);
         vm.setBookTitle(book.book.title);
@@ -83,7 +82,6 @@ export default {
     },
     setBook(book) {
       this.book = book;
-      console.log("Setie el book:", book);
     },
     setError(err) {
       this.error = err.toString();

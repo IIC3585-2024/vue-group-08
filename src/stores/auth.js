@@ -26,10 +26,6 @@ export const useAuthStore = defineStore({
         this.loggedIn = true;
         localStorage.setItem("userId", this.userId);
         localStorage.setItem("loggedIn", JSON.stringify(this.loggedIn));
-        console.log(
-          "Acabo de cambiar el estado de loggedIn a true: ",
-          this.loggedIn
-        );
       } catch (error) {
         // Handle the error
         console.error("Login failed:", error);

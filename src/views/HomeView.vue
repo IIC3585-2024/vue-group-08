@@ -1,5 +1,5 @@
 <script setup>
-import { computed, defineProps } from "vue";
+import { computed } from "vue";
 import { useRouter } from "vue-router";
 import LoadingIcon from "../components/LoadingIcon.vue";
 import { useBookLoadingStore } from "../stores/bookLoading";
@@ -15,6 +15,8 @@ const props = defineProps({
     required: true,
   },
 });
+
+const userId = computed(() => useAuthStore().userId);
 
 const router = useRouter();
 
@@ -67,7 +69,6 @@ function getBookId(bookKey) {
             alt="Default Book Image"
             class="w-32 h-48 object-cover rounded-lg"
           />
-          <!-- <BookCoverImage :src="book.cover_i" :alt="book.title" :size="M" /> -->
           <div class="font-bold">{{ book.title }}</div>
           <div class="mt-1">{{ book.first_sentence }}</div>
           <div class="mt-2 italic text-gray-500 dark:text-gray-400">
