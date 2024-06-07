@@ -25,10 +25,11 @@ export default {
       error: null,
       bookKey: "",
       bookState: "",
-      userHasBook: false
+      userHasBook: false,
+      listElementId: null,
+      bookScore: null
     };
   },
-
 
   async beforeRouteEnter(to, from, next) {
     const bookLoadingStore = useBookLoadingStore();
@@ -43,13 +44,19 @@ export default {
         `http://localhost:3000/listElements/userList/getByKey/${useAuthStore().userId}/${to.params.bookKey}`);
       const stateData = await stateResponse.json();
       let bookState;
+      let listElementId;
+      let bookScore;
       if (stateData.userHasBook){
           bookState = stateData.listElement.state;
+          listElementId = stateData.listElement.id;
+          bookScore = stateData.listElement.score;
+
       }
       else {
            bookState = "";
+           listElementId = null;
+           bookScore = null;
       }
-      // this.setBookTitle(book.book.title);
       next((vm) => {
         vm.setBookTitle(book.book.title);
         vm.setBookCover(book.book.covers);
@@ -57,6 +64,8 @@ export default {
         vm.setBookKey(book.book.key);
         vm.setBookState(bookState);
         vm.setUserHasBook(stateData.userHasBook);
+        vm.setListElementId(listElementId);
+        vm.setBookScore(bookScore);
         bookLoadingStore.setLoading(null, false);
       });
     } catch (err) {
@@ -90,15 +99,23 @@ export default {
         })
         .then((stateData) => {
           let bookState;
+          let listElementId;
+          let bookScore;
           if (stateData.userHasBook){
               bookState = stateData.listElement.state;
+              listElementId = stateData.listElement.id;
+              bookScore = stateData.listElement.score;
           }
           else {
               bookState = "";
+              listElementId = null;
+              bookScore = null;
           }
 
           setBookState(bookState);
           setUserHasBook(stateData.userHasBook);
+          setListElementId(listElementId);
+          setBookScore(bookScore);
         })
         next();
       })
@@ -108,6 +125,7 @@ export default {
         next();
       });
   },
+
   methods: {
     setBookTitle(title) {
       this.bookTitle = title;
@@ -131,6 +149,12 @@ export default {
     },
     setUserHasBook(userHasBook) {
       this.userHasBook = userHasBook;
+    },
+    setListElementId(listElementId) {
+      this.listElementId = listElementId;
+    },
+    setBookScore(bookScore) {
+      this.bookScore = bookScore;
     },
     setError(err) {
       this.error = err.toString();
@@ -237,10 +261,10 @@ export default {
           </div>
 
           <div class="mt-6 sm:gap-4 sm:items-center sm:flex sm:mt-8">
-            <h1>Buena</h1>
-            <AddToListComponent :bookKey="bookKey" :userHasBook="userHasBook" :bookState="bookState"/>
-            <SelectScore />
-            <RecommendButton />
+            <AddToListComponent :bookKey="bookKey" :userHasBook="userHasBook" 
+            :bookState="bookState" :listElementId="listElementId" @addToList="() => userHasBook = true"/>
+            <SelectScore v-if="userHasBook" :listElementId="listElementId" :bookScore="bookScore"/>
+            <RecommendButton :bookKey="bookKey"/>
           </div>
 
           <hr class="my-6 md:my-8 border-gray-200 dark:border-gray-800" />

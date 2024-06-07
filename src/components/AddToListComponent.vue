@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, watch } from "vue";
+import { computed, ref, watch, defineEmits } from "vue";
 import { useAuthStore } from "../stores/auth";
 
 const props = defineProps({
@@ -14,6 +14,9 @@ const props = defineProps({
   userHasBook: {
     type: Boolean,
     required: true
+  },
+  listElementId: {
+    type: Number
   }
 });
 
@@ -22,6 +25,27 @@ const apiUrl = "http://localhost:3000";
 const authStore = useAuthStore();
 const userId = computed(() => authStore.userId);
 const isAdded = ref(false);
+
+const bookState = ref("");
+
+const emit = defineEmits(["addToList"]);
+
+
+const selectedOption = computed({
+  get() {
+    if (isAdded.value){
+      return "Reading";
+    }
+    else {
+      return props.bookState;
+    }
+  },
+  set(newValue) {
+    updateBookState(newValue);
+    return newValue;
+  }
+})
+
 
 const bookInList = computed(() => {
   if (isAdded.value){
@@ -32,17 +56,45 @@ const bookInList = computed(() => {
   }
 });
 
-const bookState = computed(() => props.bookState);
+let newListElementId;
+
+const listElementId = computed(() => {
+  if (isAdded.value){
+    return newListElementId;
+  }
+  else{
+    return props.listElementId;
+  }
+});
+
 
 
 async function handleClick() {
   const bookId = getBookId(props.bookKey);
   await addBookToUserList(bookId);
+  emit("addToList");
   ;
 } 
 
-// watch(props.userHasBook, () => bookInList.value = props.userHasBook);
-
+async function updateBookState(newState){
+  try { const response = await fetch(`${apiUrl}/listElements/${listElementId.value}`, {
+        method: "PUT",
+        headers: {
+          "Content-type": "application/json",
+        },
+        body: JSON.stringify({
+          state: newState
+        }),
+      });
+      const data = await response.json();
+      console.log(
+              "List element updated",
+            );
+      }
+  catch (error){
+    console.error("Update state failed", error);
+  }
+}
 
 async function addBookToUserList(bookId){
   try {
@@ -57,12 +109,12 @@ async function addBookToUserList(bookId){
         }),
         });
         const data = await response.json();
+        newListElementId = data.id;
         isAdded.value = true;
         console.log(
           "Add to list succesfull ",
         );
       } catch (error) {
-        // Handle the error
         console.error("Add to list failed", error);
       }
 }
@@ -101,14 +153,15 @@ function getBookId(bookKey) {
     </button>
     <form v-if="bookInList" class="max-w-sm mx-auto">
       <select
+        v-model="selectedOption"
         id="countries"
         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
       >
-        <option value="PTR" selected>Plan to read</option>
-        <option value="RE">Reading</option>
-        <option value="CMP">Completed</option>
-        <option value="OH">On-Hold</option>
-        <option value="DP">Dropped</option>
+        <option value="Plan To Read">Plan to read</option>
+        <option value="Reading">Reading</option>
+        <option value="Completed">Completed</option>
+        <option value="On Hold">On-Hold</option>
+        <option value="Dropped">Dropped</option>
       </select>
     </form>
   </div>
