@@ -21,6 +21,9 @@ export const useAuthStore = defineStore({
             password: password,
           }),
         });
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const data = await response.json();
         this.userId = data.id;
         this.loggedIn = true;
@@ -29,6 +32,7 @@ export const useAuthStore = defineStore({
       } catch (error) {
         // Handle the error
         console.error("Login failed:", error);
+        alert("Usuario o contraseña incorrectos");
       }
     },
     async register(username, email, password) {
