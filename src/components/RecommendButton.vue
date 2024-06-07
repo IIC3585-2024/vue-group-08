@@ -151,6 +151,12 @@ const selectedUserId = ref(null);
 const users = ref([]);
 const recommendation = ref("");
 
+const bookKey = computed(() => getBookId(props.bookKey));
+
+function getBookId(bookKey) {
+  return bookKey.split("/").pop();
+}
+
 async function openRecomendationModal(){
   users.value = await getAllUsers();
   toggleModal();
@@ -180,8 +186,6 @@ function toggleUserSelection(userId) {
 }
 
 async function confirm() {
-  console.log("Selected Users:", selectedUserId.value);
-  console.log("Recommendation:", recommendation.value);
   try {
     const response = await fetch(`${apiUrl}/recomendations`, {
       method: "POST",
@@ -192,7 +196,7 @@ async function confirm() {
         userWhoRecomendsId: authStore.userId,
         userWhoGetsRecomendedId: selectedUserId.value,
         content: recommendation.value,
-        key: ""
+        key: bookKey.value
       })
     });
     const data = await response.json();
