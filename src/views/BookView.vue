@@ -40,6 +40,7 @@ export default {
       );
       if (!response.ok) throw new Error("Failed to fetch data");
       const book = await response.json();
+
       const stateResponse = await fetch(
         `http://localhost:3000/listElements/userList/getByKey/${useAuthStore().userId}/${to.params.bookKey}`);
       const stateData = await stateResponse.json();
@@ -57,6 +58,7 @@ export default {
            listElementId = null;
            bookScore = null;
       }
+
       next((vm) => {
         vm.setBookTitle(book.book.title);
         vm.setBookCover(book.book.covers);

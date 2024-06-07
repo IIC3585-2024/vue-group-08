@@ -204,5 +204,6 @@ async function confirm() {
   finally {
     closeModal();
   }
+
 }
 </script>

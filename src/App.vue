@@ -18,7 +18,6 @@ const loggedIn = computed(() => authStore.loggedIn);
 
 function updateSearchQuery(query) {
   searchQuery.value = query;
-  console.log("En App.vue searchQuery toma el valor de: ", searchQuery.value);
 }
 
 async function fetchBooks() {
